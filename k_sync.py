@@ -90,7 +90,6 @@ class WatchHandler(FileSystemEventHandler):
                 path = os.path.join(base_dir, f)  # .decode('gbk').encode('utf8')
                 yield path, 0
 
-
     def full_sync(self):
         """
         全量更新
@@ -100,7 +99,6 @@ class WatchHandler(FileSystemEventHandler):
         path_md5 = self.get_remote_md5()
         paths = list(self.get_all_path(self.local_root))
         self.all_path_md5 = self.get_all_local_md5(paths)
-        dirs=[]
         for path, is_dir in paths:
             remote_path = self.local_to_remote_path(path)
             # logging.info('full sync %s is_dir=%s', remote_path, is_dir)
@@ -108,15 +106,10 @@ class WatchHandler(FileSystemEventHandler):
             if is_dir or path_md5.get(remote_path) != self.get_local_md5(path):
                 if not is_dir:
                     logging.info('full sync %s is_dir:%s md5 diff ', remote_path, is_dir)
-
-                    self.sync_file(path, is_dir)
-                else:
-                    dirs.append(remote_path)
+                self.sync_file(path, is_dir)
             else:
                 pass
                 # logging.info('full sync %s is_dir:%s md5 same , pass', remote_path, is_dir)
-        if dirs:
-            run('mkdir -p %s'%(' '.join(dirs)))
         logging.info('done full sync %s', self.local_root)
 
     def is_exclude(self, remote_path):
